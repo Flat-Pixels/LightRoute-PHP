@@ -2,7 +2,7 @@
 namespace LightRoute;
 
 require "Exception/RouteException.php";
-
+require "Route.php";
 
 use LightRoute\Exception\RouteException;
 
@@ -58,10 +58,10 @@ class Router{
     public function addRoute(string $requestMethod, string $routeUrl, Callable $callback)
     {
         $requestMethod = strtoupper($requestMethod);
-        if(in_array($requestMethod, $this->supportedRequestMethods, true))
-        {
-            if(!isset($this->routes[$requestMethod][$routeUrl])){
-                return $this->routes[$requestMethod][$routeUrl] = $callback;
+        if (in_array($requestMethod, $this->supportedRequestMethods, true)) {
+            $route = new Route($this->filterRouteUrl($routeUrl), $callback);
+            if (!$this->hasRegistered($requestMethod, $route)) {
+                return $this->routes[$requestMethod][] = $route;
             }
             throw new RouteException("Routes doublon not accepted");
         }
@@ -77,16 +77,40 @@ class Router{
     {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $requestUrl = $_SERVER['REQUEST_URI'];
-        
-        if(in_array($requestMethod, $this->supportedRequestMethods))
-        {
-            if(isset($this->routes[$requestMethod][$requestUrl]))
-            {
-                return $this->routes[$requestMethod][$requestUrl]();
-            }
-            throw new RouteException("Route not found");
+        if ($route = $this->getRouteByUrl($requestMethod, $this->filterRouteUrl($requestUrl))) {
+            $route->getCallback()();
+            return;
         }
-        throw new RouteException("Method " . $requestMethod . " is not supported");
+        throw new RouteException("Route not found");
+    }
+
+    private function hasRegistered($requestMethod, $checkRoute)
+    {
+        if (isset($this->routes[$requestMethod])) {
+            foreach ($this->routes[$requestMethod] as $route) {
+                if ($route === $checkRoute) {
+                    return $route;
+                }
+            }
+        }
+        return false;
+    }
+
+    private function getRouteByUrl($requestMethod, $routeUrl)
+    {
+        if (isset($this->routes[$requestMethod])) {
+            foreach($this->routes[$requestMethod] as $route) {
+                if($routeUrl === $route->getUrl()) {
+                    return $route;
+                }
+            }
+        }
+        return false;
+    }
+
+    private function filterRouteUrl($url)
+    {
+        return rtrim($url, '/');
     }
 
 
