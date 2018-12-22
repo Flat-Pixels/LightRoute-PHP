@@ -6,7 +6,8 @@ require "Route.php";
 
 use LightRoute\Exception\RouteException;
 
-class Router{
+class Router
+{
 
     /**
      * Keep the single instace of this class
@@ -78,8 +79,7 @@ class Router{
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $requestUrl = $_SERVER['REQUEST_URI'];
         if ($route = $this->getRouteByUrl($requestMethod, rtrim($requestUrl))) {
-            $route->getCallback()();
-            return;
+            return $route->execute();
         }
         throw new RouteException("Route not found");
     }
@@ -114,7 +114,7 @@ class Router{
     {
         if (isset($this->routes[$requestMethod])) {
             foreach($this->routes[$requestMethod] as $route) {
-                if($routeUrl === $route->getUrl()) {
+                if($route->matches($routeUrl)) {
                     return $route;
                 }
             }
