@@ -2,6 +2,7 @@
 
 namespace LightRoute;
 
+
 class Route
 {
     /**
@@ -36,6 +37,7 @@ class Route
         $path = preg_replace('#:([\w]+)#', '([^/]+)', $this->url);
         $regex = "#^$path$#i";
 
+        
         if (!preg_match($regex, $url, $matches)) {
             return false;
         }
