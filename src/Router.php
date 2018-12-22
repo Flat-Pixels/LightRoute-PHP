@@ -59,11 +59,11 @@ class Router{
     {
         $requestMethod = strtoupper($requestMethod);
         if (in_array($requestMethod, $this->supportedRequestMethods, true)) {
-            $route = new Route($this->filterRouteUrl($routeUrl), $callback);
+            $route = new Route($routeUrl, $callback);
             if (!$this->hasRegistered($requestMethod, $route)) {
                 return $this->routes[$requestMethod][] = $route;
             }
-            throw new RouteException("Routes doublon not accepted");
+            throw new RouteException("Route [" . $requestMethod . "] is a doublon");
         }
         throw new RouteException("Method " . $requestMethod . " is not supported");
     }
@@ -77,14 +77,21 @@ class Router{
     {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $requestUrl = $_SERVER['REQUEST_URI'];
-        if ($route = $this->getRouteByUrl($requestMethod, $this->filterRouteUrl($requestUrl))) {
+        if ($route = $this->getRouteByUrl($requestMethod, rtrim($requestUrl))) {
             $route->getCallback()();
             return;
         }
         throw new RouteException("Route not found");
     }
 
-    private function hasRegistered($requestMethod, $checkRoute)
+    /**
+     * Check if a route has been already registered
+     *
+     * @param string $requestMethod
+     * @param Route $checkRoute
+     * @return boolean | Route
+     */
+    private function hasRegistered(string $requestMethod, Route $checkRoute)
     {
         if (isset($this->routes[$requestMethod])) {
             foreach ($this->routes[$requestMethod] as $route) {
@@ -96,7 +103,14 @@ class Router{
         return false;
     }
 
-    private function getRouteByUrl($requestMethod, $routeUrl)
+    /**
+     * Get a route of routes that have been registered
+     *
+     * @param string $requestMethod
+     * @param string $routeUrl
+     * @return boolean | Route
+     */
+    private function getRouteByUrl(string $requestMethod, string $routeUrl)
     {
         if (isset($this->routes[$requestMethod])) {
             foreach($this->routes[$requestMethod] as $route) {
@@ -106,11 +120,6 @@ class Router{
             }
         }
         return false;
-    }
-
-    private function filterRouteUrl($url)
-    {
-        return rtrim($url, '/');
     }
 
 

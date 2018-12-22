@@ -20,8 +20,13 @@ class Route
 
     public function __construct(string $url, Callable $callback)
     {
-        $this->url = $url;
+        $this->setUrl($url);
         $this->callback = $callback;
+    }
+
+    public function setUrl($url)
+    {
+        $this->url = rtrim($url, '/');
     }
 
     public function getUrl()
