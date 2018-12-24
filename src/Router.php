@@ -62,7 +62,8 @@ class Router
         if (in_array($requestMethod, $this->supportedRequestMethods, true)) {
             $route = new Route($routeUrl, $callback);
             if (!$this->hasRegistered($requestMethod, $route)) {
-                return $this->routes[$requestMethod][] = $route;
+                $this->routes[$requestMethod][] = $route;
+                return $route;
             }
             throw new RouteException("Route [" . $requestMethod . "] is a doublon");
         }

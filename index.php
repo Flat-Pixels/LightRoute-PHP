@@ -18,11 +18,14 @@ $router->addRoute('get', '/posts/', function(){
     echo "Welcome to the posts page";
 });
 
-$router->addRoute('get', '/post/:id', function( $id ){
+$router->addRoute('get', '/post/:id/:slug', function( $id, $slug ){
     echo "Afficher le post ayant l'id: " . $id;
-});
+    echo "Afficher le post ayant le slug: " . $slug;
+})->validateParams(array('id' => "[0-8]"));
 
 
 
 $router->resolve();
+
+?>
 
