@@ -6,79 +6,94 @@ namespace LightRoute;
 class Route
 {
     /**
-     * Define the url of the route
+     * Route url
      *
      * @var string
      */
     private $url;
     
     /**
-     * Keep params of a route
+     * Route params value
      *
      * @var array
      */
-    private $vars = [];
+    private $queryParams = [];
+
 
     /**
-     * Define the action that will be excute when the route is reached
+     * Route action when it is reached
      *
-     * @var Callbable
+     * @var callbable
      */
     private $callback;
 
-    private $paramsValidators = [];
+    /**
+     * Regex that validates each route url params
+     *
+     * @var array
+     */
+    private $queryParamsFormat = [];
 
-    public function __construct(string $url, Callable $callback)
+
+    /**
+     * Create a route
+     *
+     * @param string $url url of the route
+     * @param callable $callback action to call when a route is executed
+     */
+    public function __construct(string $url, callable $callback)
     {
         $this->setUrl($url);
         $this->callback = $callback;
     }
 
-    public function matches($url)
+    /**
+     * Check if a url matches to the current route
+     *
+     * @param string $url the request url
+     * @return boolean
+     */
+    public function matchesToUrl(string $url): bool
     {
-        /*
-        * Check if the request url pattern
-        * Matches to a route url
-        */
+        preg_match_all('#:([\w]+)#', $this->url, $paramsName);
         $path = preg_replace('#:([\w]+)#', '([^/]+)', $this->url);
         $regex = "#^$path$#i";
-
-        if (!preg_match($regex, $url, $matches)) {
+        if (!preg_match($regex, $url, $paramsValue)) {
             return false;
         }
-        array_shift($matches);
-
-        /* Save url params urlname and their values */
-        preg_match_all('#:([\w]+)#', $this->url, $paramsName);
-        $paramsName = $paramsName[1];
-        $params = [];
-        foreach($paramsName as $key => $name ){
-            $params[$name] = $matches[$key];
+        array_shift($paramsValue);
+        foreach($paramsName[1] as $key => $name) {
+            $this->queryParams[$name] = $paramsValue[$key];
         }
-
-        //var_dump($params);
-
-        /* Check if params are valid */
-
-        foreach($this->paramsValidators as $key => $value)
-        {
-            /*if(($value === 'int' && !is_numeric($params[$key])) || ($value === 'string' && !is_string($params[$key]))){
-                return false;
-            }*/
-            var_dump($value);
-            if(!preg_match_all('/' . $value .'/', $params[$key])){
-                return false;
-            }
-        }
-        $this->vars = $matches;
-
         return true;
     }
 
-    public function validateParams($args)
+    /**
+     * Check if all query params are valid
+     *
+     * @return boolean
+     */
+    public function isQueryParamsValid(): bool
     {
-        $this->paramsValidators = $args;
+        foreach ($this->queryParamsFormat as $key => $regex) {
+            if (!preg_match_all('/' . $regex .'/', $this->queryParams[$key])) {
+                return false;
+            }
+        }
+        return true;
     }
+
+    /**
+     * Add validator for query params
+     *
+     * @param array $queryParamsFormat array of query params validator
+     * @return void
+     */
+    public function format($queryParamsFormat): void
+    {
+        $this->queryParamsFormat = $queryParamsFormat;
+    }
+
     /**
      * Set a route url
      *
@@ -97,7 +112,7 @@ class Route
      */
     public function execute()
     {
-        call_user_func_array($this->callback, $this->vars);
+        call_user_func_array($this->callback, $this->queryParams);
     }
 
 }

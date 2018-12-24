@@ -21,7 +21,7 @@ $router->addRoute('get', '/posts/', function(){
 $router->addRoute('get', '/post/:id/:slug', function( $id, $slug ){
     echo "Afficher le post ayant l'id: " . $id;
     echo "Afficher le post ayant le slug: " . $slug;
-})->validateParams(array('id' => "[0-8]"));
+})->format(['id' => "[0-8]"]);
 
 
 

@@ -49,12 +49,12 @@ class Router
     }
 
     /**
-     * Register routes to the router
+     * Register routes into the router
      *
      * @param string $requestMethod
      * @param string $routeUrl
-     * @param Callable $callback
-     * @return Route
+     * @param Callable $callback 
+     * @return Route | \Exception
      */
     public function addRoute(string $requestMethod, string $routeUrl, Callable $callback)
     {
@@ -79,8 +79,18 @@ class Router
     {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $requestUrl = $_SERVER['REQUEST_URI'];
-        if ($route = $this->getRouteByUrl($requestMethod, rtrim($requestUrl))) {
-            return $route->execute();
+
+        if (isset($this->routes[$requestMethod])) {
+            foreach($this->routes[$requestMethod] as $route) {
+                if ($route->matchesToUrl($requestUrl)) {
+                    if ($route->isQueryParamsValid()) {
+                        return $route->execute();
+                    } else {
+                        throw new RouteException("Route params not valid");
+                    }
+                }
+
+            }
         }
         throw new RouteException("Route not found");
     }
@@ -97,25 +107,6 @@ class Router
         if (isset($this->routes[$requestMethod])) {
             foreach ($this->routes[$requestMethod] as $route) {
                 if ($route === $checkRoute) {
-                    return $route;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Get a route of routes that have been registered
-     *
-     * @param string $requestMethod
-     * @param string $routeUrl
-     * @return boolean | Route
-     */
-    private function getRouteByUrl(string $requestMethod, string $routeUrl)
-    {
-        if (isset($this->routes[$requestMethod])) {
-            foreach($this->routes[$requestMethod] as $route) {
-                if($route->matches($routeUrl)) {
                     return $route;
                 }
             }
