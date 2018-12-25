@@ -21,9 +21,11 @@ $router->addRoute('get', '/posts/', function(){
 $router->addRoute('get', '/post/:id/:slug', function( $id, $slug ){
     echo "Afficher le post ayant l'id: " . $id;
     echo "Afficher le post ayant le slug: " . $slug;
-})->format(['id' => "[0-8]"]);
+})->format(['id' => "[0-8]"])->name('post_id');
 
-
+$router->addRoute('get', '/go', function() use($router){
+    $router->redirect('post_id', ['slug' => 'la ferme', 'id' => 4]);
+});//->format(['id' => "[0-8]"]);
 
 $router->resolve();
 

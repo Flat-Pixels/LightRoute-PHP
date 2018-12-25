@@ -35,6 +35,7 @@ class Router
 
     }
 
+
     /**
      * Create an instance of Router
      *
@@ -68,6 +69,33 @@ class Router
             throw new RouteException("Route [" . $requestMethod . "] is a doublon");
         }
         throw new RouteException("Method " . $requestMethod . " is not supported");
+    }
+
+    /**
+     * Redirect to a route by using GET as request method
+     *
+     * @param string $routeName Name of the route to be redirected to
+     * @param array $queryParams Query params that needs the route
+     * @return void | \Exception
+     */
+    public function redirect(string $routeName, array $queryParams): void
+    {
+        if (isset($this->routes['GET'])) {
+            foreach($this->routes['GET'] as $route) {
+                if ($route->getName() === $routeName) {
+                    $path = preg_replace_callback('#:[\w]+#', function($matches) use($queryParams){
+                        $paramName = str_replace(':', '', $matches[0]);
+                        if (!isset($queryParams[$paramName])) {
+                            throw new RouteException("Redirect method need " . strtoupper($paramName) . " to work correctly.");                           
+                        }
+                        return $queryParams[$paramName];
+                    }, $route->getUrl());
+                    header('Location:' . $path);
+                    break;
+                }
+            }        
+        }
+        throw new RouteException("Redirect route for : " . $routeName . " not found");
     }
 
     /**
