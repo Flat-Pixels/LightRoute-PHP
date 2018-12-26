@@ -2,8 +2,7 @@
 
 namespace LightRoute;
 
-
-class Route
+class LightRoute
 {
     /**
      * Route url
@@ -47,10 +46,11 @@ class Route
      * @param string $url url of the route
      * @param callable $callback action to call when a route is executed
      */
-    public function __construct(string $url, callable $callback)
+    public function __construct(string $url, callable $callback, ?string $name = null)
     {
         $this->setUrl($url);
         $this->callback = $callback;
+        $this->name = $name;
     }
 
     /**
@@ -81,9 +81,11 @@ class Route
      */
     public function isQueryParamsValid(): bool
     {
-        foreach ($this->queryParamsFormat as $key => $regex) {
-            if (!preg_match_all('/' . $regex .'/', $this->queryParams[$key])) {
-                return false;
+        if (!empty($this->queryParams)){
+            foreach ($this->queryParamsFormat as $key => $regex) {
+                if (!preg_match_all('/' . $regex .'/', $this->queryParams[$key])) {
+                    return false;
+                }
             }
         }
         return true;
@@ -93,9 +95,9 @@ class Route
      * Add validator for query params
      *
      * @param array $queryParamsFormat array of query params validator
-     * @return Route
+     * @return LightRoute
      */
-    public function format($queryParamsFormat): Route
+    public function format($queryParamsFormat): LightRoute
     {
         $this->queryParamsFormat = $queryParamsFormat;
         return $this;
@@ -105,11 +107,12 @@ class Route
      * Set the route name
      *
      * @param string $name Name of the route
-     * @return void
+     * @return LightRoute
      */
-    public function name(string $name): void
+    public function name(string $name): LightRoute
     {
         $this->name = $name;
+        return $this;
     }
 
     /**

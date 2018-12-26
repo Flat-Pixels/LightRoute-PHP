@@ -1,18 +1,16 @@
 <?php
+
 namespace LightRoute;
 
-require "Exception/RouteException.php";
-require "Route.php";
+use LightRoute\Exception\LightRouteException;
 
-use LightRoute\Exception\RouteException;
-
-class Router
+class LightRouter
 {
 
     /**
      * Keep the single instace of this class
      *
-     * @var Router
+     * @var LightRouter
      */
     private static $instance;
 
@@ -39,12 +37,12 @@ class Router
     /**
      * Create an instance of Router
      *
-     * @return Router
+     * @return LightRouter
      */
     public static function getInstance()
     {
         if (is_null(self::$instance)) {
-            self::$instance = new Router;
+            self::$instance = new self;
         }
         return self::$instance;
     }
@@ -54,21 +52,22 @@ class Router
      *
      * @param string $requestMethod
      * @param string $routeUrl
-     * @param Callable $callback 
-     * @return Route | \Exception
+     * @param callable $callback
+     * @param string $name Name of the route 
+     * @return LightRoute | \Exception
      */
-    public function addRoute(string $requestMethod, string $routeUrl, Callable $callback)
+    public function addRoute(string $requestMethod, string $routeUrl, Callable $callback, ?string $name = null)
     {
         $requestMethod = strtoupper($requestMethod);
         if (in_array($requestMethod, $this->supportedRequestMethods, true)) {
-            $route = new Route($routeUrl, $callback);
-            if (!$this->hasRegistered($requestMethod, $route)) {
+            $route = new LightRoute($routeUrl, $callback, $name);
+            if (!$this->hasRegistered($route)) {
                 $this->routes[$requestMethod][] = $route;
                 return $route;
             }
-            throw new RouteException("Route [" . $requestMethod . "] is a doublon");
+            throw new LightRouteException("Route [" . $requestMethod . "] is a doublon");
         }
-        throw new RouteException("Method " . $requestMethod . " is not supported");
+        throw new LightRouteException("Method " . $requestMethod . " is not supported");
     }
 
     /**
@@ -78,24 +77,25 @@ class Router
      * @param array $queryParams Query params that needs the route
      * @return void | \Exception
      */
-    public function redirect(string $routeName, array $queryParams): void
+    public function redirect(string $routeName, array $queryParams = [])
     {
         if (isset($this->routes['GET'])) {
             foreach($this->routes['GET'] as $route) {
-                if ($route->getName() === $routeName) {
+                if (strcasecmp($route->getName(), $routeName) === 0) {
                     $path = preg_replace_callback('#:[\w]+#', function($matches) use($queryParams){
                         $paramName = str_replace(':', '', $matches[0]);
                         if (!isset($queryParams[$paramName])) {
-                            throw new RouteException("Redirect method need " . strtoupper($paramName) . " to work correctly.");                           
+                            throw new LightRouteException("Redirect method need " . strtoupper($paramName) . " to work correctly.");                           
                         }
                         return $queryParams[$paramName];
                     }, $route->getUrl());
                     header('Location:' . $path);
-                    break;
+                    exit;
+                    //return true;
                 }
             }        
         }
-        throw new RouteException("Redirect route for : " . $routeName . " not found");
+        throw new LightRouteException("Redirect route for : " . $routeName . " not found");
     }
 
     /**
@@ -114,30 +114,32 @@ class Router
                     if ($route->isQueryParamsValid()) {
                         return $route->execute();
                     } else {
-                        throw new RouteException("Route params not valid");
+                        throw new LightRouteException("Route params not valid");
                     }
                 }
 
             }
         }
-        throw new RouteException("Route not found");
+        throw new LightRouteException("Route for url: " . $requestUrl . " not found");
     }
 
     /**
      * Check if a route has been already registered
      *
-     * @param string $requestMethod
-     * @param Route $checkRoute
+     * @param LightRoute $checkRoute
      * @return boolean | Route
      */
-    private function hasRegistered(string $requestMethod, Route $checkRoute)
+    private function hasRegistered(LightRoute $checkRoute)
     {
-        if (isset($this->routes[$requestMethod])) {
-            foreach ($this->routes[$requestMethod] as $route) {
-                if ($route === $checkRoute) {
+        foreach ($this->routes as $requestMethod => $routes) {
+            foreach ($routes as $route) {
+                if (
+                    $route->getUrl() === $checkRoute->getUrl()|| 
+                    (!is_null($route->getName()) && $route->getName() === $checkRoute->getName())) {
                     return $route;
                 }
             }
+
         }
         return false;
     }

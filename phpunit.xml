@@ -1,0 +1,10 @@
+<phpunit
+         colors="true"
+         processIsolation="true"
+         verbose="true">
+    <testsuites>
+        <testsuite name="Global test">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
