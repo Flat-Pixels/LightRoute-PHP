@@ -14,7 +14,9 @@
             "LightRoute\\": "src/"
         }
     },
-    "require": {},
+    "require": {
+        "php": ">=7.2.0"
+    },
     "require-dev": {
         "phpunit/phpunit": "^7.5",
         "squizlabs/php_codesniffer": "*"
