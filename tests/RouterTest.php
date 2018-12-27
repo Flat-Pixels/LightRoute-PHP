@@ -34,8 +34,10 @@ final class RouterTest extends TestCase
     public function testDoublonRouteRegisterIntoRouter(): void
     {
         $this->expectException(LightRouteException::class);
-        $this->router->addRoute('get', '/', function(){});
-        $this->router->addRoute('get', '/', function(){}); 
+        $this->router->addRoute('get', '/', function () {
+        });
+        $this->router->addRoute('get', '/', function () {
+        });
     }
 
     /**
@@ -46,7 +48,8 @@ final class RouterTest extends TestCase
     public function testRegisterRouteWithUnsupportedRequestMethod(): void
     {
         $this->expectExceptionMessage("Method PUT is not supported");
-        $this->router->addRoute('put', '/:id', function(){});
+        $this->router->addRoute('put', '/:id', function () {
+        });
     }
 
     /**
@@ -57,7 +60,8 @@ final class RouterTest extends TestCase
     public function testRouteCantRedirectionWithoutName(): void
     {
         $this->expectException(LightRouteException::class);
-        $this->router->addRoute('get', '/post', function(){}, "GETPOST");
+        $this->router->addRoute('get', '/post', function () {
+        }, "GETPOST");
         $this->router->redirect("getpo");
     }
 
@@ -79,8 +83,9 @@ final class RouterTest extends TestCase
     public function testRouteNameDoublon(): void
     {
         $this->expectException(LightRouteException::class);
-        $this->router->addRoute('get', '/blog', function(){}, "blog");
-        $this->router->addRoute('post', '/single', function(){}, "blog");
+        $this->router->addRoute('get', '/blog', function () {
+        }, "blog");
+        $this->router->addRoute('post', '/single', function () {
+        }, "blog");
     }
-
 }

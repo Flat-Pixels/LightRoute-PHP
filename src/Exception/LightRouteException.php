@@ -2,6 +2,7 @@
 
 namespace LightRoute\Exception;
 
-class LightRouteException extends \Exception{
+class LightRouteException extends \Exception
+{
 
 }

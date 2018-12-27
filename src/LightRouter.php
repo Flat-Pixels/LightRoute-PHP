@@ -15,7 +15,7 @@ class LightRouter
     private static $instance;
 
     /**
-     * Keep the supported request methods of the router 
+     * Keep the supported request methods of the router
      *
      * @var array
      */
@@ -30,7 +30,6 @@ class LightRouter
 
     private function __construct()
     {
-
     }
 
 
@@ -53,10 +52,10 @@ class LightRouter
      * @param string $requestMethod
      * @param string $routeUrl
      * @param callable $callback
-     * @param string $name Name of the route 
+     * @param string $name Name of the route
      * @return LightRoute | \Exception
      */
-    public function addRoute(string $requestMethod, string $routeUrl, Callable $callback, ?string $name = null)
+    public function addRoute(string $requestMethod, string $routeUrl, callable $callback, ?string $name = null)
     {
         $requestMethod = strtoupper($requestMethod);
         if (in_array($requestMethod, $this->supportedRequestMethods, true)) {
@@ -80,12 +79,12 @@ class LightRouter
     public function redirect(string $routeName, array $queryParams = [])
     {
         if (isset($this->routes['GET'])) {
-            foreach($this->routes['GET'] as $route) {
+            foreach ($this->routes['GET'] as $route) {
                 if (strcasecmp($route->getName(), $routeName) === 0) {
-                    $path = preg_replace_callback('#:[\w]+#', function($matches) use($queryParams){
+                    $path = preg_replace_callback('#:[\w]+#', function ($matches) use ($queryParams) {
                         $paramName = str_replace(':', '', $matches[0]);
                         if (!isset($queryParams[$paramName])) {
-                            throw new LightRouteException("Redirect method need " . strtoupper($paramName) . " to work correctly.");                           
+                            throw new LightRouteException("Redirect method need " . strtoupper($paramName) . " to work correctly.");
                         }
                         return $queryParams[$paramName];
                     }, $route->getUrl());
@@ -93,7 +92,7 @@ class LightRouter
                     exit;
                     //return true;
                 }
-            }        
+            }
         }
         throw new LightRouteException("Redirect route for : " . $routeName . " not found");
     }
@@ -109,7 +108,7 @@ class LightRouter
         $requestUrl = $_SERVER['REQUEST_URI'];
 
         if (isset($this->routes[$requestMethod])) {
-            foreach($this->routes[$requestMethod] as $route) {
+            foreach ($this->routes[$requestMethod] as $route) {
                 if ($route->matchesToUrl($requestUrl)) {
                     if ($route->isQueryParamsValid()) {
                         return $route->execute();
@@ -117,7 +116,6 @@ class LightRouter
                         throw new LightRouteException("Route params not valid");
                     }
                 }
-
             }
         }
         throw new LightRouteException("Route for url: " . $requestUrl . " not found");
@@ -133,16 +131,12 @@ class LightRouter
     {
         foreach ($this->routes as $requestMethod => $routes) {
             foreach ($routes as $route) {
-                if (
-                    $route->getUrl() === $checkRoute->getUrl()|| 
+                if ($route->getUrl() === $checkRoute->getUrl()||
                     (!is_null($route->getName()) && $route->getName() === $checkRoute->getName())) {
                     return $route;
                 }
             }
-
         }
         return false;
     }
-
-
 }

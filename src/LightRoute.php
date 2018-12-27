@@ -68,7 +68,7 @@ class LightRoute
             return false;
         }
         array_shift($paramsValue);
-        foreach($paramsName[1] as $key => $name) {
+        foreach ($paramsName[1] as $key => $name) {
             $this->queryParams[$name] = $paramsValue[$key];
         }
         return true;
@@ -81,7 +81,7 @@ class LightRoute
      */
     public function isQueryParamsValid(): bool
     {
-        if (!empty($this->queryParams)){
+        if (!empty($this->queryParams)) {
             foreach ($this->queryParamsFormat as $key => $regex) {
                 if (!preg_match_all('/' . $regex .'/', $this->queryParams[$key])) {
                     return false;
@@ -155,5 +155,4 @@ class LightRoute
     {
         call_user_func_array($this->callback, $this->queryParams);
     }
-
 }
