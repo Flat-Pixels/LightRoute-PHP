@@ -8,6 +8,7 @@
             "email": "steeveverdieu@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "LightRoute\\": "src/"
