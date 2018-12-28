@@ -1,6 +1,8 @@
 {
     "name": "flatpixels/light-route",
     "description": "A simple php router easy to setup and use.",
+    "keywords": ["Php routes", "Php router", "Router", "Routes"],
+    "license": "MIT",
     "type": "library",
     "authors": [
         {
@@ -8,7 +10,7 @@
             "email": "steeveverdieu@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "LightRoute\\": "src/"
