@@ -70,4 +70,19 @@ $route->addRoute('get', 'post/:id', function($id) {
 })->format(['id' => "[0-9]"]);
 ```
 
-The `format(...)` method takes a pair `$key => $value` array where `$key` is a parmater name, and `$key` a regex that represents the valid values for this parameter.
+The `format(...)` method takes a pair `$key => $value` array where `$key` is a parmater name, and `$value` a regex that represents the valid values for this parameter.
+
+# Redirect to a specific route
+
+You can use the router by calling the `redirect(..)` method, to redirect you to another route. The method takes 2 arguments:
+
+- `$routeName` : The name of the route to which we must be redirected.
+- `$params` : (Optional) An array of `$key => $value` where `$key` is a parmater name, and `$value` the value of the paramter:
+
+```php
+$router->addRoute('get', '/go/to/single', function() use($router){
+
+    //Redirect to the "single_post" route, with param: id=4
+    $router->redirect('single_post', ['id' => 4]);
+});
+```
